@@ -1,0 +1,306 @@
+<div class="Register-container d-flex justify-content-center align-items-center py-2">
+    <div class="card text-center">
+        <div>
+            <img src="/assets/img/logo.png" class="logo mt-4" />
+            <div>
+                <h1 class="card-title py-3">Create your Goya's Account</h1>
+            </div>
+        </div>
+        <div class="Auth-form-container m-3 flex-column">
+            <canvas id="draw-profile-canvas" width="1024" height="1024"
+                style="display: none; border:1px solid #163f58; background-color: #163f58;"></canvas>
+            <form class="Auth-form" method="post" id="registerForm" action="register" enctype="multipart/form-data">
+                <div class="Auth-form-content">
+                    <div class="drop-zone mt-3" id="drop-zone">
+                        <p class="drop-zone__prompt" id="drop-zone-prompt">
+                            <span id="select-image"><i class="fas fa-folder"
+                                    style="margin-right: 4px;"></i><u>Upload</u></span> / <span id="take-image"><i
+                                    class="fas fa-camera" style="margin-right: 4px;"></i><u>Take Photo</u></span>
+                            <br>Max Size: 1MB
+                        </p>
+                        <input type="file" name="photo" id="photo" class="drop-zone__input"
+                            accept="image/png,image/jpeg,image/jpg,image/webp" multiple="false">
+                    </div>
+                    <div class="form-floating mt-3">
+                        <input type="email" placeholder="example@gmail.com" name="email" id="email"
+                            class="form-control shadow-none" value="<%- user.email %>"></input>
+                        <label class="form-label" for="email">Email</label>
+                    </div>
+                    <div class="form-floating mt-3">
+                        <input type="text" placeholder="full name" name="username" id="username"
+                            class="form-control shadow-none" value="<%- user.username %>"></input>
+                        <label class="form-label" for="username">Name</label>
+                    </div>
+                    <div class="form-floating mt-3">
+                        <input type="password" name="password" id="password" class="form-control shadow-none"
+                            value="<%- user.password %>"></input>
+                        <label class="form-label" for="password">Password</label>
+                    </div>
+
+                    <div class="form-floating mt-3">
+                        <input type="password" name="confirmPassword" id="confirmPassword"
+                            class="form-control shadow-none" value="<%- user.confirmPassword %>"></input>
+                        <label class="form-label" for="password">Confirm Password</label>
+                    </div>
+                    <div class="d-flex mt-3 mb-3">
+                        <button type="button" class="btn primaryBtn" id="submit-btn">Submit</button>
+                    </div>
+                </div>
+                <button type="button" class="btn primaryBtn mt-3 mb-3" id="back-to-login">Already have an account ?
+                    <span>Sign in
+                        now</span></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="take-image-modal" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: auto; justify-content: center;"
+            data-bs-dismiss="modal">
+            <div class="modal-content" style="flex-direction: row; justify-content: center; width: fit-content;">
+                <div id="camera-div">
+                    <div>
+                        <div style="display: flex; justify-content: center; align-items: center;">
+                            <video id="video" autoplay></video>
+                        </div>
+                        <button type="submit" class="primaryBtn" style="margin-right: 10px;" id="close-camera"
+                            data-bs-dismiss="modal">
+                            <i class="far fa-times-circle"></i>
+                        </button>
+                        <button type="submit" class="primaryBtn" style="margin-right: 10px;" id="change-camera">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button type="submit" class="btn primaryBtn" style="margin-right: 10px;" id="take-photo">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/assets/js/dropzone.js"></script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const encodedData = urlParams.get('client_oauth_request') || sessionStorage.getItem('client_oauth_request');
+    if (encodedData) {
+        sessionStorage.removeItem('client_oauth_request');
+        sessionStorage.setItem('client_oauth_request', encodedData);
+    }
+
+    document.getElementById('registerForm').action = `register?${encodedData ? `client_oauth_request=${encodedData}&` : ''}`;
+    document.getElementById('back-to-login').onclick = () => location.href = `<%- process.env.URL_PRE_FIX %>/auth/login`;
+
+    document.getElementById('submit-btn').addEventListener('click', () => {
+        if (dropZoneInput.files.length < 1) {
+            const drawProfileCanvas = document.getElementById("draw-profile-canvas");
+            var ctx = drawProfileCanvas.getContext("2d");
+            ctx.textAlign = "center";
+            ctx.font = "bold 700px Poppins";
+            ctx.fillStyle = "#163f58";
+            ctx.fillText((document.getElementById('username').value || 'anonymous').slice(0, 2).toUpperCase(), 516, 1024 / 1.4);
+            drawProfileCanvas.toBlob((blob) => {
+                const file = new File([blob], "photo.png", { type: "image/png" });
+                const dT = new DataTransfer();
+                dT.items.add(file);
+                dropZoneInput.files = dT.files;
+                document.getElementById('registerForm').submit();
+            });
+        } else document.getElementById('registerForm').submit();
+    })
+</script>
+<style>
+    input {
+        box-shadow: none;
+    }
+
+    .card {
+        width: 30rem;
+        border: none;
+    }
+
+    .card-title {
+        font-family: var(--primaryFont);
+        font-weight: 300;
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+
+    .Auth-form-content {
+        background: #f6f8fa;
+        padding: 30px;
+        border: 1px solid #d8dee4;
+        border-radius: 20px;
+    }
+
+    .form-control:focus {
+        border-color: #ced4da;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+
+    .form-select:focus {
+        border-color: #ced4da;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+
+    .drop-zone {
+        height: 200px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: "Quicksand", sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        cursor: pointer;
+        color: #cccccc;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background: white;
+    }
+
+    .drop-zone--over {
+        border-style: solid;
+    }
+
+    .drop-zone__input {
+        display: none;
+    }
+
+    .drop-zone__prompt {
+        font-family: var(--primaryFont);
+        font-size: 16px;
+    }
+
+    .drop-zone__thumb {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #cccccc;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: relative;
+    }
+
+    .custom-label {
+        z-index: 99;
+    }
+
+    /* #back-to-login {
+        background: #f6f8fa;
+        padding: 10px;
+        border: 1px solid #d8dee4;
+        border-radius: 10px;
+        box-shadow: none;
+        font-weight: 300;
+    } */
+
+    /* #back-to-login:hover {
+        color: #0d6efd;
+        font-weight: 300;
+    } */
+
+    .drop-zone__thumb::after {
+        content: attr(data-label);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 5px 0;
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.75);
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .modal-content {
+        background-color: transparent;
+        border: none;
+    }
+
+    .btn-close {
+        position: absolute;
+        right: 0;
+        top: 0;
+        box-shadow: none;
+    }
+
+    #camera-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    #take-photo {
+        position: fixed;
+        bottom: 5vh;
+        left: 50%;
+        height: 10vh;
+        width: 10vh;
+        transform: translate(-50%);
+        border-radius: 50%;
+        font-size: 2rem;
+        background-color: #f14d5d !important;
+        box-shadow: none;
+    }
+
+    #change-camera {
+        position: fixed;
+        bottom: 6vh;
+        left: 75%;
+        height: 7vh;
+        width: 7vh;
+        transform: translate(-50%);
+        border-radius: 50%;
+        font-size: 1.5rem;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+
+    #close-camera {
+        position: fixed;
+        bottom: 6vh;
+        left: 25%;
+        height: 7vh;
+        width: 7vh;
+        transform: translate(-50%);
+        border-radius: 50%;
+        font-size: 1.5rem;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+
+    #video {
+        width: 40vh;
+        height: 40vh;
+    }
+
+    /* Mobile Responsive */
+    @media only screen and (max-width: 600px) {
+        .Auth-form-container {
+            display: flex;
+            justify-content: censtyle="width: 40vh; height: 40vh;" ter;
+            align-items: center;
+        }
+
+        .Register-container {
+            overflow: hidden;
+        }
+
+        .custom-label {
+            padding: 11px !important;
+        }
+    }
+
+    @media (min-width: 1000px) {
+        #video {
+            width: 40vw;
+            height: 40vw;
+        }
+    }
+</style>

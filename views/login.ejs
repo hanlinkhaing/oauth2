@@ -1,0 +1,409 @@
+<div class="d-flex justify-content-center align-items-center">
+    <div class="mt-5">
+        <div class="Auth-form-container m-2 flex-column">
+            <div><img src="/assets/img/logo.png" class="logo mb-2" /></div>
+            <div>
+                <h1 class="card-title py-3">Sign in to Goya Universe</h1>
+            </div>
+            <form class="Auth-form" method="post" action="login" id="loginForm">
+                <div class="Auth-form-content">
+                    <div class="form-floating mt-3">
+                        <input class="form-control shadow-none" type="email" placeholder="example@gmail.com"
+                            name="email" id="email" value="<%- email %>"></input>
+                        <label for="email">Email Address</label>
+                    </div>
+                    <div class="form-floating mt-3" id="passwordContainer">
+                        <input class="form-control shadow-none" type="password" name="password" id="password"
+                            placeholder="password" value="<%- password %>" />
+                        <label for="password">Password</label>
+                        <span class="input-group-text"><i class="fa-solid fa-eye-slash" id="togglePassword"
+                                style="width: 25px;"></i></span>
+                    </div>
+                    <input type="text" name="code" id="code" hidden />
+                    <button type="submit" class="btn primaryBtn mt-3 mb-3" id="login-btn">Login</button>
+
+                    <div class="text-center"><button type="button" class="btn btn-link"
+                            style="box-shadow: none; text-decoration: none; color: #174c6d; font-size: 0.9rem;"
+                            id="resend-email" hidden>Re-send
+                            Verification
+                            Email</button>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="<%- process.env.URL_PRE_FIX %>/auth/request-forgot-pass"
+                            class="forgot-pass pt-3">Forgot
+                            Password
+                            ?</a>
+                    </div>
+                    <button type="button" class="btn primaryBtn mt-3 mb-3 " id="register-btn">Don't have an account ?
+                        <span class="signUp-btn">Sign up now</span></button>
+                </div>
+            </form>
+
+            <div class="my-2">OR</div>
+
+            <div class="Auth-form-container flex-column">
+                <div class="Auth-form-content">
+                    <button type="submit" class="btn primaryBtn mb-3 " id="fb-btn"
+                        style="display: flex; justify-content: center; align-items: center;font-size: 14px; background-color: white !important; color: black !important; width: 321px; box-shadow: none; border: 1px solid #dadce0;">
+                        <div style="font-size: 20px; line-height: 20px; color: #087bea !important; margin-right: 5px;">
+                            <i class="fab fa-facebook"></i>
+                        </div>
+                        Continue With Facebook
+                    </button>
+                    <div id="buttonDiv"></div>
+                </div>
+            </div>
+            <div class="footer-wrap mt-3 ">
+                <div>
+                    <p>By continuing you agree to <strong>Web3Re Technologies Pte Ltd</strong>
+                        <a href="https://goyauniverse.co/terms" class="mx-2">Terms of Service</a> and acknowledge you've
+                        read our <a href="https://goyauniverse.co/terms" class="mx-2">Privacy Policy</a>
+                    </p>
+                </div>
+            </div>
+            <p id="status"></p>
+        </div>
+    </div>
+    <div class="modal" id="token-modal" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <!-- Modal Header -->
+                <div class="modal-header pt-5 d-flex justify-content-center">
+                    <h4 class="modal-title">Welcome Back , Select your Goya account</h4>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body" id="modal-body">
+                    <% users.forEach(function(user){ %>
+                        <div class="user-div row">
+                            <!--TODO <img src="" alt=""> -->
+                            <div class="col-9 d-flex justify-content-start align-items-center">
+                                <img class="token-image" src="<%-user.profileImageUrl%>" />
+                                <label style="margin-left: 4px;">
+                                    <%-user.email%>
+                                </label>
+                            </div>
+                            <button type="button" class="btn primaryBtn col-3" id=<%-user.email%>>Go</button>
+                        </div>
+                        <% }); %>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn primaryBtn" data-bs-dismiss="modal" id="go-to-login"
+                        style="width: fit-content;">Login with
+                        another account</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <canvas id="draw-profile-canvas" width="1024" height="1024"
+        style="display: none; border:1px solid #163f58; background-color: #163f58;"></canvas>
+</div>
+<script>
+    const smsNotVerified = JSON.parse('<%- JSON.stringify(error) %>');
+    const resendEmail = document.getElementById('resend-email');
+    if (smsNotVerified.message === 'Email verification needed!') {
+        resendEmail.hidden = false;
+        resendEmail.addEventListener('click', async () => {
+            try {
+                const encoded = sessionStorage.getItem('client_oauth_request');
+                const response = await axios.get(`<%- process.env.URL_PRE_FIX %>/auth/get-verify-email?email=${document.getElementById('email').value}${encoded ? `&client_oauth_request=${encoded}` : ''}`);
+                showError(response.data.message);
+                resendEmail.hidden = true;
+            } catch (err) {
+                showError(err.message);
+            }
+        })
+    } else {
+        resendEmail.hidden = true;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const encodedData = urlParams.get('client_oauth_request');
+    if (encodedData) {
+        sessionStorage.removeItem('client_oauth_request');
+        sessionStorage.setItem('client_oauth_request', encodedData);
+    }
+
+    document.getElementById('register-btn').onclick = () => location.href = `<%- process.env.URL_PRE_FIX %>/users/register`;
+
+    const tokenModal = document.getElementById('token-modal');
+    const users = JSON.parse('<%- JSON.stringify(users) %>');
+    if (users.length > 0) {
+        users.forEach(user => {
+            const userDiv = document.getElementById(user.email);
+            userDiv.onclick = () => {
+                setCookie("accessToken", user.accessToken);
+                setCookie("refreshToken", user.refreshToken);
+                const encoded = sessionStorage.getItem('client_oauth_request');
+                location.href = `<%- process.env.URL_PRE_FIX %>/users/${user.id}/redirect${encoded ? `?client_oauth_request=${encoded}` : ''}`;
+            }
+        });
+        tokenModal.style.display = 'block';
+    }
+
+    document.getElementById('go-to-login').onclick = () => tokenModal.style.display = 'none';
+
+    const requiredTFA = '<%- requiredTFA %>';
+
+    window.addEventListener('load', () => {
+        if (requiredTFA === 'true') {
+            callCodeValidator(async (code) => {
+                document.getElementById('code').value = code;
+                document.getElementById('login-btn').click();
+            })
+        }
+
+        const encoded = sessionStorage.getItem('client_oauth_request');
+        document.getElementById('loginForm').action = `login${encoded ? `?client_oauth_request=${encoded}` : ''}`;
+    });
+
+    // Fetch the user profile data from facebook
+    function getFbUserData() {
+        FB.api('/me', { locale: 'en_US', fields: 'id,first_name,last_name,email,locale,picture' },
+            function (response) {
+                submitSocialLogin({ email: response.email, name: `${response.first_name} ${response.last_name}`, url: response.picture.data.url });
+            });
+    }
+
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: "<%- process.env.FACEBOOK_APP_ID %>",
+            cookie: true,
+            xfbml: true,
+            version: 'v15.0'
+        });
+
+        // FB.getLoginStatus(function (response) {
+        //     if (response.status === 'connected') {
+        //         getFbUserData();
+        //     }
+        // });
+    };
+
+    (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) { return; }
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    document.getElementById('fb-btn').addEventListener('click', () => {
+        fbLogin();
+    });
+
+    function handleFBCredentialResponse(response) {
+        if (response.authResponse) {
+            getFbUserData();
+        } else {
+            showError('User cancelled login or did not fully authorize.')
+        }
+    }
+
+    function fbLogin() {
+        FB.login(handleFBCredentialResponse, { scope: 'email' });
+    }
+
+    function handleCredentialResponse(response) {
+        const data = parseJwt(response.credential);
+        submitSocialLogin({ email: data.email, name: data.name, url: data.picture });
+    }
+
+    function submitSocialLogin({ email, name, url }) {
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("username", name);
+
+        if (!url) {
+            const drawProfileCanvas = document.getElementById("draw-profile-canvas");
+            var ctx = drawProfileCanvas.getContext("2d");
+            ctx.textAlign = "center";
+            ctx.font = "bold 700px Poppins";
+            ctx.fillStyle = "#163f58";
+            ctx.fillText(name.slice(0, 2).toUpperCase(), 516, 1024 / 1.4);
+            drawProfileCanvas.toBlob((blob) => {
+                const file = new File([blob], "photo.png", { type: "image/png" });
+                formData.append("photo", file);
+                callSocialLoginPost(formData);
+            });
+        } else {
+            fetch(url)
+                .then(res => res.blob())
+                .then(blob => {
+                    formData.append("photo", new File([blob], "photo.png", { type: "image/png" }));
+                    callSocialLoginPost(formData);
+                });
+        }
+    }
+
+    async function callSocialLoginPost(formData) {
+        try {
+            const result = await axios.post(`<%- process.env.URL_PRE_FIX %>/auth/social-login`, formData,
+                { headers: { 'Content-Type': 'multipart/form-data' } });
+            const encoded = sessionStorage.getItem('client_oauth_request');
+            location.href = `<%- process.env.URL_PRE_FIX %>/users/${result.data.data.id}/redirect${encoded ? `?client_oauth_request=${encoded}` : ''}`;
+        } catch (err) {
+            console.log('callSocialLoginPost: ', err);
+            showError(err.response.data.data.message || err.message);
+            return;
+        }
+    }
+
+    window.onload = function () {
+        google.accounts.id.initialize({
+            client_id: "<%- process.env.GOOGLE_CLIENT_ID %>",
+            callback: handleCredentialResponse,
+            auto_select: false
+        });
+        google.accounts.id.renderButton(
+            document.getElementById("buttonDiv"),
+            {
+                theme: "outline", size: "large", logo_alignment: 'center', text: 'Continue With Google',
+                width: "321px"
+            }
+        );
+        google.accounts.id.prompt();
+    }
+
+</script>
+<style>
+    .token-image {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
+
+    .user-div {
+        margin: 4px 3px;
+        padding: 2px 2px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        /* border: solid 1px #ced4da; */
+        border-radius: 0.25rem;
+        /* background: #f6f8fa; */
+    }
+
+    .card-title,
+    .modal-title {
+        font-family: var(--);
+        font-weight: 300;
+        font-size: 20px;
+    }
+
+    .user-div button {
+        width: fit-content;
+    }
+
+    hr {
+        width: 100%;
+        border-bottom: solid 1px;
+        /* display: inline-flex;
+        grid-template-columns: 2; */
+    }
+
+    .form-control:focus {
+        border-color: #ced4da;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+
+    .form-select:focus {
+        border-color: #ced4da;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+
+    .Auth-form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Auth-form {
+        width: 100%;
+    }
+
+    .Auth-form-content {
+        background: #f6f8fa;
+        padding: 21px;
+        border: 1px solid #d8dee4;
+        border-radius: 20px;
+    }
+
+    /* #register-btn {
+        background: #f6f8fa;
+        padding: 10px;
+        border: 1px solid #d8dee4;
+        border-radius: 10px;
+        box-shadow: none;
+        font-weight: 300;
+    }
+
+    #register-btn:hover {
+        color: #0d6efd;
+        font-weight: 300;
+    } */
+
+    button:hover {
+        font-weight: 300;
+    }
+
+    #passwordContainer {
+        display: flex;
+    }
+
+    #passwordContainer .form-control {
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+
+    #passwordContainer .input-group-text {
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+    }
+
+    .forgot-pass {
+        text-decoration: none;
+        color: #174c6d !important;
+    }
+
+    .forgot-pass hover {
+        color: #ffffff !important;
+    }
+
+    .modal-content {
+        font-family: var(--primaryFont);
+    }
+
+    .modal-header {
+        border-bottom: none;
+    }
+
+    .signUp-btn:hover {
+        color: #ffffff;
+    }
+
+    .footer-wrap {
+        width: 360px;
+        display: flex;
+        text-align: center;
+    }
+
+    .footer-wrap a {
+
+        color: blue;
+        font-size: 14px;
+    }
+
+    .footer-wrap p {
+        font-size: 12px;
+    }
+
+    .footer-wrap a:hover {
+        color: #0505d0;
+        font-size: 14px;
+    }
+</style>

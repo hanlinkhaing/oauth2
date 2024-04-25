@@ -1,0 +1,367 @@
+<div class="card text-center">
+    <div class="Content-form-container m-3 flex-column">
+        <canvas id="draw-profile-canvas" width="1024" height="1024"
+            style="display: none; border:1px solid #163f58; background-color: #163f58;"></canvas>
+        <form class="Content-form" method="post" id="upgradeForm" action="upgrade" enctype="multipart/form-data">
+            <div class="Content-form-items">
+                <h6>Upgrade to verified account</h6>
+                <input type="text" name="hasPassword" hidden value="<%- hasPassword %>"></input>
+                <div class="drop-zone mt-3" id="drop-zone">
+                    <p class="drop-zone__prompt" id="drop-zone-prompt">
+                        <span id="select-image"><i class="fas fa-folder"
+                                style="margin-right: 4px;"></i><u>Upload</u></span> / <span id="take-image"><i
+                                class="fas fa-camera" style="margin-right: 4px;"></i><u>Take Photo</u></span>
+                        <br>Max Size: 1MB
+                    </p>
+                    <input type="file" name="photo" id="photo" class="drop-zone__input"
+                        accept="image/png,image/jpeg,image/jpg,image/webp" multiple="false">
+                </div>
+
+                <span id="pass-block">
+                    <div class="form-floating mt-3">
+                        <input type="password" name="password" class="form-control shadow-none"
+                            value="<%- user.password %>"></input>
+                        <label class="form-label" for="password">Password<span class="text-danger">*</span></label>
+                    </div>
+                    <div class="form-floating mt-3">
+                        <input type="password" name="confirmPassword" class="form-control shadow-none"
+                            value="<%- user.confirmPassword %>"></input>
+                        <label class="form-label" for="confirmPassword">Confirm Password<span
+                                class="text-danger">*</span></label>
+                    </div>
+                </span>
+
+                <div class="form-floating mt-3">
+                    <select class="form-select form-select-sm shadow-none" name="country" id="country"
+                        value="<%- user.country %>">
+                        <% countries.forEach(function(country){ %>
+                            <% if (user.country===country.country) { %>
+                                <option value="<%- country.country %>" selected>
+                                    <%- country.country %>
+                                </option>
+                                <% } else { %>
+                                    <option value="<%- country.country %>">
+                                        <%- country.country %>
+                                    </option>
+                                    <% } %>
+                                        <% }); %>
+                    </select>
+                    <label class="form-label" for="country">Country<span class="text-danger">*</span></label>
+                </div>
+                <input type="text" name="isoCode2" id="isoCode2" value="<%- user.isoCode2 %>" hidden></input>
+                <div class="input-group mt-3 row" style="margin-left: 1px;">
+                    <div class="form-floating col-4 m-0 p-0">
+                        <select class="form-select form-select-sm shadow-none" name="countryCode" id="countryCode"
+                            value="<%- user.countryCode %>">
+                        </select>
+                        <label class="form-label" for="country">Code<span class="text-danger">*</span></label>
+                    </div>
+                    <div class="form-floating col-8 m-0 p-0">
+                        <input type="text" name="phone" id="phone" class="form-control shadow-none"
+                            style="border-left: none;"
+                            value="<%- user.phone? user.phone.replace(user.countryCode, ''): '' %>"></input>
+                        <label class="form-label custom-label" for="phone">Phone<span
+                                class="text-danger">*</span></label>
+                    </div>
+                </div>
+                <div class="form-floating mt-3">
+                    <select class="form-select form-select-sm shadow-none" name="city" id="city"
+                        value="<%- user.city %>">
+                    </select>
+                    <label class="form-label" for="city">City<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="Address" name="address1" id="address1"
+                        class="form-control shadow-none" value="<%- user.address1 %>"></input>
+                    <label class="form-label" for="address1">Address 1<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="Address" name="address2" id="address2"
+                        class="form-control shadow-none" value="<%- user.address2 %>"></input>
+                    <label class="form-label" for="address2">Address 2</label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="date" name="dob" id="dob" class="form-control shadow-none"
+                        value="<%- user.dob? user.dob.toISOString().split('T')[0]: null %>"></input>
+                    <label class="form-label" for="dob">Birth Date<span class="text-danger">*</span></label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="Postal Code" name="postalCode" id="postalCode"
+                        class="form-control shadow-none" value="<%- user.postalCode %>"></input>
+                    <label class="form-label" for="postalCode">Postal Code<span class="text-danger">*</span></label>
+                </div>
+                <div class="d-flex mt-3 mb-3">
+                    <button type="button" class="btn primaryBtn" id="submit-btn">Verify Phone No</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal" id="take-image-modal" style="background: rgba(0, 0, 0, 0.8);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: auto; justify-content: center;"
+            data-bs-dismiss="modal">
+            <div class="modal-content" style="flex-direction: row; justify-content: center; width: fit-content;">
+                <div id="camera-div">
+                    <div>
+                        <div style="display: flex; justify-content: center; align-items: center;">
+                            <video id="video" autoplay></video>
+                        </div>
+                        <button type="submit" class="primaryBtn" style="margin-right: 10px;" id="close-camera"
+                            data-bs-dismiss="modal">
+                            <i class="far fa-times-circle"></i>
+                        </button>
+                        <button type="submit" class="primaryBtn" style="margin-right: 10px;" id="change-camera">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button type="submit" class="btn primaryBtn" style="margin-right: 10px;" id="take-photo">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/assets/js/dropzone.js"></script>
+<script>
+    const user = JSON.parse('<%- JSON.stringify(user) %>');
+    const hasPw = JSON.parse('<%- hasPassword %>');
+    if (hasPw) document.getElementById('pass-block').remove();
+
+    const countries = JSON.parse('<%- JSON.stringify(countries) %>');
+    const country = document.getElementById('country');
+    const countryCode = document.getElementById('countryCode');
+    const city = document.getElementById('city');
+    const isoCode2 = document.getElementById('isoCode2');
+    changeCodeSelect(country.value)
+    country.addEventListener('change', async (e) => changeCodeSelect(e.target.value));
+
+    async function changeCodeSelect(value) {
+        const index = countries.indexOf(c => c.country === value);
+        const selectedCountry = search(value, countries);
+        countryCode.innerHTML = await Promise.all(
+            selectedCountry.countryCodes.map(async (code) => {
+                return `<option value=\"+${code}\" ${user.countryCode === '+' + code ? 'selected' : ''}>+${code}</option>`;
+            })
+        );
+        isoCode2.value = selectedCountry.isoCode2;
+
+        const response = await axios.get(`<%- process.env.URL_PRE_FIX %>/users/cities/${selectedCountry.isoCode2}`);
+        city.innerHTML = await Promise.all(
+            response.data.data.map(async (c) => {
+                return `<option value=\"${c}\" ${user.city === c ? 'selected' : ''}>${c}</option>`;
+            })
+        );
+    }
+
+    function search(nameKey, myArray) {
+        for (var i = 0; i < myArray.length; i++) {
+            if (myArray[i].country === nameKey) {
+                return myArray[i];
+            }
+        }
+    }
+
+    document.getElementById('submit-btn').addEventListener('click', () => {
+        document.getElementById('upgradeForm').submit();
+        // confirmPass(async error => {
+        //     if (error) return;
+        //     document.getElementById('upgradeForm').submit();
+        // })
+    })
+</script>
+<style>
+    #li-upgrade {
+        color: rgb(7, 7, 7);
+        background-color: var(--pearlWhite);
+        border-radius: 5px;
+    }
+
+    .li-upgrade {
+        color: var(--pink);
+    }
+
+    .profile-div {
+        height: max-content;
+        width: 100%;
+        padding-top: 27px;
+        padding-bottom: 12px;
+    }
+
+    input {
+        box-shadow: none;
+    }
+
+    .card-title {
+        font-family: var(--primaryFont);
+        font-weight: 300;
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+
+    .Auth-formu {
+        display: flex;
+        justify-content: center;
+    }
+
+    .Auth-formu-content {
+        background: #f6f8fa;
+        padding: 30px;
+        border: 1px solid #d8dee4;
+        border-radius: 20px;
+        width: 30rem;
+    }
+
+    .form-control:focus {
+        border-color: #ced4da;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+
+    .form-select:focus {
+        border-color: #ced4da;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+    }
+
+    .drop-zone {
+        height: 200px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: "Quicksand", sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        cursor: pointer;
+        color: #cccccc;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background: white;
+    }
+
+    .drop-zone--over {
+        border-style: solid;
+    }
+
+    .drop-zone__input {
+        display: none;
+    }
+
+    .drop-zone__prompt {
+        font-family: var(--primaryFont);
+        font-size: 16px;
+    }
+
+    .drop-zone__thumb {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #cccccc;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: relative;
+    }
+
+    .custom-label {
+        z-index: 99;
+    }
+
+    .drop-zone__thumb::after {
+        content: attr(data-label);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 5px 0;
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.75);
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .btn-close {
+        position: absolute;
+        right: 0;
+        top: 0;
+        box-shadow: none;
+    }
+
+    #camera-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    #take-photo {
+        position: fixed;
+        bottom: 5vh;
+        left: 50%;
+        height: 10vh;
+        width: 10vh;
+        transform: translate(-50%);
+        border-radius: 50%;
+        font-size: 2rem;
+        background-color: #f14d5d !important;
+        box-shadow: none;
+    }
+
+    #change-camera {
+        position: fixed;
+        bottom: 6vh;
+        left: 75%;
+        height: 7vh;
+        width: 7vh;
+        transform: translate(-50%);
+        border-radius: 50%;
+        font-size: 1.5rem;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+
+    #close-camera {
+        position: fixed;
+        bottom: 6vh;
+        left: 25%;
+        height: 7vh;
+        width: 7vh;
+        transform: translate(-50%);
+        border-radius: 50%;
+        font-size: 1.5rem;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+
+    #video {
+        width: 40vh;
+        height: 40vh;
+    }
+
+    /* Mobile Responsive */
+    @media only screen and (max-width: 600px) {
+        .Auth-form-container {
+            display: flex;
+            justify-content: censtyle="width: 40vh; height: 40vh;" ter;
+            align-items: center;
+        }
+
+        .Register-container {
+            overflow: hidden;
+        }
+
+        .custom-label {
+            padding: 11px !important;
+        }
+    }
+
+    @media (min-width: 1000px) {
+        #video {
+            width: 40vw;
+            height: 40vw;
+        }
+    }
+</style>

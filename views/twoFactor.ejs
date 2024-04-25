@@ -1,0 +1,267 @@
+<div class="card text-center">
+    <div class="Content-form-container m-3 flex-column">
+        <div class="Content-form">
+            <div class="Content-form-items">
+                <div class="d-flex justify-content-center pt-2" style="width: 100%;">
+                    <h6>Choose Two Factor Authentication</h6>
+                </div>
+                <div class="pt-3" style="width: 100%;">
+                    <div class="form-check" id="app-radio-div">
+                        <input type="radio" class="form-check-input" id="app" name="two-fa" value="app">
+                        <label class="form-check-label" for="radio1">Authenticator App</label>
+                    </div>
+                    <div class="form-check" id="sms-radio-div">
+                        <input type="radio" class="form-check-input" id="sms" name="two-fa" value="sms">
+                        <label class="form-check-label" for="radio2">SMS verification&nbsp;</label>
+                    </div>
+                </div>
+                <div class="off" style="width: 100%;" id="app-div">
+                    <h6 class="text-center">Scan with your authenticator app</h6>
+                    <div class="text-center" style="width: 100%;"><img class="text-center" id="qr"
+                            style="width: 150px; height: 150px;"></div>
+                    <div class="text-center" style="width: 100%;"><button type="button" class="btn primaryBtn mt-3"
+                            data-bs-dismiss="modal" id="app-btn" style="width: 40%;">Continue</button></div>
+                </div>
+                <div class="off" style="width: 100%;" id="sms-div">
+                    <h6 class="text-center">Verification phone number</h6>
+                    <div class="d-flex justify-content-center" style="width: 100%;">
+                        <div class="input-group mb-3" style="width: 50%;">
+                            <span class="input-group-text" id="countryCode">
+                                <%- user.countryCode %>
+                            </span>
+                            <input type="text" class="form-control shadow-none" id="phoneNo" style="width: 10vw;"
+                                aria-describedby="basic-addon3"
+                                value="<%- user.phone? user.phone.replace(user.countryCode, '' ): '' %>">
+                        </div>
+                    </div>
+                    <div class="text-center" style="width: 100%;"><button type="button" class="btn primaryBtn mt-3"
+                            data-bs-dismiss="modal" id="sms-btn" style="width: 40%;">Send</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const appRDiv = document.getElementById('app-radio-div');
+    const smsRDiv = document.getElementById('sms-radio-div');
+    const app = document.getElementById('app');
+    const sms = document.getElementById('sms');
+    const user = JSON.parse('<%- JSON.stringify(user) %>');
+
+    const appDiv = document.getElementById('app-div');
+    const smsDiv = document.getElementById('sms-div');
+
+    if (!user.isSmsVerified) {
+        sms.disabled = true;
+    }
+    appRDiv.addEventListener('click', () => app.click());
+    smsRDiv.addEventListener('click', () => {
+        if (!user.isSmsVerified) {
+            showError('Need verified account!');
+            return;
+        }
+        sms.click()
+    });
+
+    app.onclick = async (e) => {
+        confirmPass(async error => {
+            if (error) return;
+
+            const result = await fetch(`<%- process.env.URL_PRE_FIX %>/users/${user.id}/two-fa/app`);
+            appDiv.setAttribute('class', 'd-flex justify-content-center flex-column pt-4');
+            smsDiv.setAttribute('class', 'off');
+            const reader = new FileReader();
+            reader.readAsDataURL(await result.blob());
+            reader.onloadend = function () {
+                const base64data = reader.result;
+                document.getElementById('qr').src = base64data
+            }
+            toggleSwitch('APP');
+            return;
+        })
+    };
+    sms.onclick = async (e) => {
+        if (!user.isSmsVerified) {
+            showError('Need verified account!');
+            return;
+        }
+        confirmPass(async error => {
+            if (error) return;
+
+            smsDiv.setAttribute('class', 'd-flex justify-content-center flex-column pt-4');
+            appDiv.setAttribute('class', 'off');
+            toggleSwitch('SMS');
+            return;
+        });
+    };
+
+    const toggleSwitch = (type) => {
+        if (type === 'APP') {
+            appRDiv.style.backgroundColor = '#ecf0ff';
+            smsRDiv.style.backgroundColor = '';
+        } else if (type === 'SMS') {
+            appRDiv.style.backgroundColor = '';
+            smsRDiv.style.backgroundColor = '#ecf0ff';
+        }
+    };
+
+    toggleSwitch(user.authType);
+
+    document.getElementById('app-btn').onclick = () => {
+        callCodeValidator(async (code) => {
+            try {
+                const response = await axios.get(`<%- process.env.URL_PRE_FIX %>/auth/verify-code/${code}?email=${user.email}`);
+                location.href = response.data.url
+            } catch (err) {
+                showError(err.response.data.message);
+            }
+        })
+    };
+    document.getElementById('sms-btn').onclick = async () => {
+        const countryCode = document.getElementById('countryCode').value;
+        const phoneNo = document.getElementById('phoneNo').value;
+        await axios(`<%- process.env.URL_PRE_FIX %>/users/${user.id}/two-fa/sms?phone=${phoneNo.trim()}`);
+        callCodeValidator(async (code) => {
+            try {
+                const response = await axios.get(`<%- process.env.URL_PRE_FIX %>/auth/verify-code/${code}?email=${user.email}`);
+                location.href = response.data.url
+            } catch (err) {
+                showError(err.response.data.message);
+            }
+        })
+    };
+
+    document.getElementById('phoneNo').disabled = user.isSmsVerified;
+</script>
+<style>
+    .form-check {
+        display: flex;
+        justify-content: center;
+        padding: 5px 10px;
+        border: 1px solid #d8dee4;
+        border-radius: 8px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .form-check label {
+        cursor: pointer;
+    }
+
+    .form-check-input {
+        padding: 0;
+        position: absolute;
+        left: 32px;
+    }
+
+    .form-check-input:checked[type=radio] {
+        background-image: none;
+    }
+
+    .off {
+        display: none !important;
+    }
+
+    .two-factor-div {
+        height: 100%;
+        width: 75%;
+        padding-top: 22px;
+    }
+
+    #li-two-fa {
+        color: rgb(7, 7, 7);
+        background-color: var(--pearlWhite);
+        border-radius: 5px;
+    }
+
+    .li-two-fa {
+        color: var(--pink);
+    }
+
+    #left {
+        left: 0;
+    }
+
+    #right {
+        right: 0;
+    }
+
+    /* #left:hover {
+        background-color: var(--pearlWhite);
+    }
+
+    #right:hover {
+        background-color: var(--pearlWhite);
+    } */
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 100px;
+        height: 34px;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        width: 60px;
+        top: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .middle {
+        content: "";
+        width: 120px;
+    }
+
+    .middle:before {
+        position: absolute;
+        z-index: 500;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 40%;
+        bottom: 4px;
+        border-radius: 50%;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked+.slider {
+        background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    .middle.left-active::before {
+        left: 4%;
+    }
+
+    .middle.right-active::before {
+        left: 75%;
+    }
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+    .slider.round#left {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .slider.round#right {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+</style>

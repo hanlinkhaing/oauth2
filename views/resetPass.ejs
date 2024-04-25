@@ -1,0 +1,87 @@
+<div>
+    <div class="d-flex justify-content-center mb-3">
+        <img src="/assets/img/logo.png" class="logo mt-2" />
+    </div>
+    <div class="req-forgot-pass-div">
+        <form class="Auth-form m-3" method="post" id="reset-pass-form" action=""
+            enctype="application/x-www-form-urlencoded">
+            <div class="text-center">
+                <img src="<%- process.env.IMG_URL_PRE_FIX + user.profileImageUrl %>" class="logo mt-2" />
+            </div>
+            <div class="text-center">
+                <p class="mt-4">
+                    <%- user.email %>
+                </p>
+            </div>
+            <h6 class="text-center mt-3 mb-1">Create your new password.</h6>
+            <div class="Auth-form-content">
+                <div class="form-floating mt-3" id="passwordContainer">
+                    <input class="form-control shadow-none" type="password" name="password" id="password"
+                        placeholder="password" />
+                    <label for="password">Password</label>
+                    <span class="input-group-text"><i class="fa-solid fa-eye-slash" id="togglePassword"
+                            style="width: 25px;"></i></span>
+                </div>
+                <div class="form-floating mt-3" id="conPasswordContainer">
+                    <input class="form-control shadow-none" type="password" name="conPassword" id="conPassword"
+                        placeholder="password" />
+                    <label for="password">Confirm Password</label>
+                </div>
+                <div class="d-flex mt-3 mb-4">
+                    <button type="button" class="btn primaryBtn" id="reset-pass-btn">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    document.getElementById('reset-pass-btn').onclick = () => {
+        const pass = document.getElementById('password').value;
+        const conPass = document.getElementById('conPassword').value;
+        if (pass !== conPass) {
+            showError(`Passwords don't match!`);
+            return;
+        } else {
+            document.getElementById('reset-pass-form').submit();
+        }
+    }
+</script>
+<style>
+    .Auth-form {
+        width: 30vw;
+    }
+
+    @media (max-width: 887px) {
+        .Auth-form {
+            width: 50vw;
+        }
+    }
+
+    @media (max-width: 535px) {
+        .Auth-form {
+            width: 80vw;
+        }
+    }
+
+    .req-forgot-pass-div {
+        margin: 2px 3px 4px 3px;
+        padding: 2px 2px;
+        border: solid 1px #d8dee4;
+        border-radius: 20px;
+        background: #f6f8fa;
+    }
+
+    #passwordContainer {
+        display: flex;
+    }
+
+    #passwordContainer .form-control {
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+
+    #passwordContainer .input-group-text {
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+    }
+</style>

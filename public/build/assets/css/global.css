@@ -1,0 +1,248 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+html {
+    height: 100vh;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+}
+
+:root {
+    --primaryFont: 'Poppins', sans-serif;
+    --pink: #f14d5d;
+    --pearlWhite: #ecf0ff;
+    --primaryGradient: linear-gradient(
+        90deg,
+        rgb(226, 205, 219),
+        rgb(204, 204, 241),
+        rgb(226, 205, 219),
+        rgb(204, 204, 220)
+    );
+    --darkGray: #666666;
+}
+
+button {
+    border-radius: 20px;
+    border: none;
+    color: var(--pearlWhite);
+    background-color: var(--pink);
+    padding: 10px;
+    width: 100%;
+    box-shadow: 1px 1px 2px var(--darkGray);
+}
+
+button:hover {
+    box-shadow: none;
+    font-weight: bold;
+}
+
+input {
+    border: solid 1px;
+    border-color: var(--pearlWhite);
+    border-radius: 30px;
+    padding: 10px 20px;
+    display: block;
+    width: 100%;
+    outline: none;
+    box-shadow: 1px 1px 2px var(--darkGray);
+}
+
+image {
+    object-fit: contain;
+}
+
+input:focus {
+    box-shadow: none;
+}
+
+.logo {
+    height: auto;
+    width: 150px;
+}
+
+.navbar-session {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    opacity: 1;
+    background: var(--pearlWhite);
+    z-index: 999;
+}
+
+.body-section {
+    min-height: 90vh;
+    display: flex;
+    justify-content: center;
+    justify-items: start;
+    align-items: center;
+    font-family: poppins;
+}
+
+.footer-section {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* min-height: 10vh; */
+    /* display: flex; */
+}
+
+.footer-section div {
+    width: 100%;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 1px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.position-fixed {
+    width: 25vw;
+    height: fit-content;
+    z-index: 1000;
+    background-color: #f57272;
+    margin-top: 10vh;
+    border: 1px solid #bababa;
+    margin-left: 37.5vw;
+    border-radius: 5px;
+    box-shadow: 2px 2px 20px 0px #00000014;
+}
+
+.error-message {
+    display: flex;
+    justify-content: center;
+    padding: 0px;
+    margin: 0px;
+    cursor: pointer;
+}
+
+.error-message p {
+    word-wrap: break-word;
+    text-align: center;
+    padding: 10px 20px;
+    margin: 0%;
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-family: poppins;
+}
+
+/* .sidebar-section {
+    position: fixed;
+    top: 80px;
+    padding: 0.25rem 0;
+    width: 20vw;
+    height: 100%;
+    z-index: 998;
+} */
+
+.nav-ul {
+    list-style: none;
+    display: block;
+    margin: 0;
+    padding: 0;
+    height: min-content;
+    width: 100%;
+    justify-content: center;
+}
+
+.nav-li {
+    display: inline-block;
+    width: 100%;
+    padding: 0.25rem 0;
+    /* padding-left: 6vh; */
+    margin: 1vh 0;
+}
+
+.nav-li div {
+    text-align: center;
+}
+
+/* @media (max-width: 1200px) {
+    .nav-li {
+        display: inline-block;
+        width: 100%;
+        padding: 0.25rem 0;
+        margin: 1vh 0;
+    }
+}
+
+@media (max-width: 1035px) {
+    .nav-li {
+        display: inline-block;
+        width: 100%;
+        padding: 0.25rem 0;
+        margin: 1vh 0;
+    }
+} */
+
+.nav-li:hover {
+    color: rgb(204, 204, 220);
+    background-color: rgb(82, 105, 122);
+    border-radius: 5px;
+}
+
+hr {
+    margin: 0.2rem 0;
+}
+
+.primaryBtn {
+    background: #163f58 !important;
+    color: white;
+}
+.primaryBtn:hover {
+    color: #ffffff;
+    background: #174c6d !important;
+}
+
+/* Content */
+.Content-form {
+    display: flex;
+    justify-content: center;
+}
+
+.card {
+    width: 75%;
+    border: none;
+}
+
+.Content-form-items {
+    background: #f6f8fa;
+    padding: 30px;
+    border: 1px solid #d8dee4;
+    border-radius: 20px;
+    width: 30rem;
+}
+
+@media (max-width: 640px) {
+    .card {
+        width: 95%;
+    }
+
+    .Content-form-items {
+        width: 85%;
+    }
+}
+
+@media (max-width: 450px) {
+    .card {
+        width: 100%;
+    }
+
+    .Content-form-items {
+        width: 95%;
+        padding: 30px 15px;
+    }
+}

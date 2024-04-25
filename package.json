@@ -1,0 +1,50 @@
+{
+  "name": "oauth-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "pm2 start app.js --attach"
+  },
+  "author": "Han Lin Khaing",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^4.0.0",
+    "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "country-state-city": "^3.1.2",
+    "crypto": "^1.0.1",
+    "debug": "^4.3.4",
+    "dotenv": "^16.0.1",
+    "ejs": "^3.1.8",
+    "express": "^4.18.1",
+    "express-ejs-layouts": "^2.5.1",
+    "express-oauth-server": "^2.0.0",
+    "express-validator": "^6.14.2",
+    "js-base64": "^3.7.2",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.7.8",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "qrcode": "^1.5.1",
+    "speakeasy": "^2.0.0",
+    "telesignsdk": "^2.2.1",
+    "uuidv4": "^6.2.13",
+    "winston": "^3.8.1",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19",
+    "prisma": "^4.0.0"
+  },
+  "keywords": [
+    "prettier"
+  ]
+}

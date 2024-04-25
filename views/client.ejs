@@ -1,0 +1,340 @@
+<div style="width: 80%;">
+    <div class="client-div" style="padding-right: 10px;">
+        <div>
+            <button type="button" class="btn primaryBtn mt-3 mb-3" id="add-client-btn" style="width: max-content;">Add
+                Client</button>
+        </div>
+        <div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Grants</th>
+                        <th scope="col">Scopes</th>
+                        <th class="text-center" scope="col">Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% clients.forEach((client, i)=> { %>
+                        <tr>
+                            <th scope="row">
+                                <%- i + 1 %>
+                            </th>
+                            <td>
+                                <%- client.appName %>
+                            </td>
+                            <td>
+                                <%- client.appType %>
+                            </td>
+                            <td>
+                                <%- client.grants %>
+                            </td>
+                            <td>
+                                <%- client.scopes %>
+                            </td>
+                            <td class="text-center show-detail"
+                                onclick="showClientDetail('<%- client.id %>', '<%- client.appName %>', '<%- client.appType %>', '<%- client.grants %>', '<%- client.scopes %>', '<%- process.env.IMG_URL_PRE_FIX + client.appLogoUrl %>', '<%- client.clientId %>', '<%- client.clientSecret %>', `<%- client.publicKey %>`, '<%- client.redirectUris %>')">
+                                <i class="fas fa-info-circle" id="show-client-detail"></i>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="add-client-modal" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 60vw;">
+            <div class="modal-content" style="flex-direction: row; justify-content: center;">
+                <form class="Auth-form mt-4 mb-3" id="add-client"
+                    action="<%- process.env.URL_PRE_FIX %>/clients/generate" method="post"
+                    enctype="multipart/form-data">
+                    <div class="text-center">
+                        <h6>Add New Client</h6>
+                    </div>
+                    <div class="Auth-form-content">
+                        <div class="drop-zone mt-3">
+                            <p class="drop-zone__prompt">Logo Image<br>Max Size: 1MB</p>
+                            <input type="file" name="logo" id="logo" class="drop-zone__input"
+                                accept="image/png,image/jpeg,image/jpg,image/webp" multiple="false">
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" name="appName" id="appName" value="" />
+                            <label for="appName">App Name</label>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input hidden name="appType" value="Website">
+                            <select class="form-select" name="appType" id="appType" disabled>
+                                <option value="Website" selected>Website</option>
+                                <option value="App">App</option>
+                            </select>
+                            <label for="appType">App Type</label>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" name="redirectUris" id="redirectUris"
+                                value="" />
+                            <label for="redirectUris">Redirect URI</label>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input hidden name="scopes" value="open_id/contacts">
+                            <select class="form-select" name="scopes" id="scopes" disabled>
+                                <option value="open_id/contacts" selected>open_id/contacts</option>
+                                <option value="open_id">open_id</option>
+                            </select>
+                            <label for="scopes">Scope</label>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn primaryBtn mt-3 mb-3"
+                                style="margin-right: 5px;">Submit</button>
+                            <button type="button" class="btn primaryBtn mt-3 mb-3" style="margin-left: 5px;"
+                                onclick="document.getElementById('add-client-modal').style.display = 'none'">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="client-detail-modal" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 60vw;">
+            <div class="modal-content" style="flex-direction: row; justify-content: center;">
+                <div style="position: absolute; right: 2%; top: 1%;"
+                    onclick="document.getElementById('client-detail-modal').style.display = 'none'"><i
+                        class="fas fa-times" style="font-size: 25px;"></i></div>
+                <form class="Auth-form mt-4 mb-4">
+                    <div class="text-center">
+                        <h6 id="client-name"></h6>
+                    </div>
+                    <div class="Auth-form-content">
+                        <div class="drop-zone text-center mt-3">
+                            <img src="" class="logo" id="client-logo" />
+                        </div>
+                        <div class="form-floating mt-3">
+                            <textarea class="form-control shadow-none" type="text" id="client-publicKey" disabled
+                                style="height: max-content;"></textarea>
+                            <label for="client-publicKey">Public Key</label>
+                            <div style="position: absolute; right: 2%; top: 3%;">
+                                <i class="fas fa-clone" data-bs-toggle="tooltip" title="Click To Copy!"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('client-publicKey').value)"></i>
+                            </div>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" id="client-id" disabled />
+                            <label for="client-id">Client ID</label>
+                            <div style="position: absolute; right: 2%; top: 3%;">
+                                <i class="fas fa-clone" data-bs-toggle="tooltip" title="Click To Copy!"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('client-id').value)"></i>
+                            </div>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" id="client-secret" disabled />
+                            <label for="client-secret">Client Secret</label>
+                            <div style="position: absolute; right: 2%; top: 3%;">
+                                <i class="fas fa-clone" data-bs-toggle="tooltip" title="Click To Copy!"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('client-secret').value)"></i>
+                            </div>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" id="client-grants" disabled />
+                            <label for="client-grants">Grants</label>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" id="client-scopes" disabled />
+                            <label for="client-scopes">Scopes</label>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" id="client-appType" disabled />
+                            <label for="client-appType">App Type</label>
+                        </div>
+                        <div class="form-floating mt-3">
+                            <input class="form-control shadow-none" type="text" id="client-redirect" disabled />
+                            <label for="client-redirect">Redirect URI</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    const user = JSON.parse('<%- JSON.stringify(user) %>');
+
+    const addClientModal = document.getElementById('add-client-modal');
+    document.getElementById('add-client-btn').onclick = async () => {
+        confirmPass(async error => {
+            if (error) return;
+            addClientModal.style.display = 'block';
+        })
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMessage = urlParams.get('error');
+
+    window.addEventListener('load', () => {
+        if (errorMessage) showError(errorMessage);
+    });
+
+    const showClientDetail = (id, appName, appType, grants, scopes, appLogoUrl, clientId, clientSecret, publicKey, redirectUris) => {
+        console.log(id)
+        document.getElementById('client-detail-modal').style.display = 'block';
+
+        document.getElementById('client-name').innerHTML = appName;
+        document.getElementById('client-appType').value = appType;
+        document.getElementById('client-grants').value = grants;
+        document.getElementById('client-scopes').value = scopes;
+        document.getElementById('client-id').value = clientId;
+        document.getElementById('client-secret').value = clientSecret;
+        document.getElementById('client-redirect').value = redirectUris;
+
+        document.getElementById('client-logo').src = appLogoUrl;
+
+        const publicKeyArea = document.getElementById('client-publicKey');
+        publicKeyArea.value = publicKey;
+        publicKeyArea.style.height = (publicKeyArea.scrollHeight + 2) + "px";
+    }
+
+    document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
+        const dropZoneElement = inputElement.closest(".drop-zone");
+
+        dropZoneElement.addEventListener("click", (e) => {
+            inputElement.click();
+        });
+
+        inputElement.addEventListener("change", (e) => {
+            if (inputElement.files && inputElement.files[0]) {
+                const maxAllowedSize = 1 * 1024 * 1024;
+                if (inputElement.files[0].size > maxAllowedSize) {
+                    showError('Image is bigger than 1MB!');
+                    inputElement.value = '';
+                    return;
+                }
+            }
+            if (inputElement.files.length) {
+                updateThumbnail(dropZoneElement, inputElement.files[0]);
+            }
+        });
+
+        dropZoneElement.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZoneElement.classList.add("drop-zone--over");
+        });
+
+        ["dragleave", "dragend"].forEach((type) => {
+            dropZoneElement.addEventListener(type, (e) => {
+                dropZoneElement.classList.remove("drop-zone--over");
+            });
+        });
+
+        dropZoneElement.addEventListener("drop", (e) => {
+            e.preventDefault();
+
+            if (e.dataTransfer.files.length) {
+                inputElement.files = e.dataTransfer.files;
+                updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+            }
+
+            dropZoneElement.classList.remove("drop-zone--over");
+        });
+    });
+
+    /**
+     * Updates the thumbnail on a drop zone element.
+     *
+     * @param {HTMLElement} dropZoneElement
+     * @param {File} file
+     */
+    function updateThumbnail(dropZoneElement, file) {
+        let thumbnailElement = dropZoneElement.querySelector(".drop-zone__thumb");
+
+        // First time - remove the prompt
+        if (dropZoneElement.querySelector(".drop-zone__prompt")) {
+            dropZoneElement.querySelector(".drop-zone__prompt").remove();
+        }
+
+        // First time - there is no thumbnail element, so lets create it
+        if (!thumbnailElement) {
+            thumbnailElement = document.createElement("div");
+            thumbnailElement.classList.add("drop-zone__thumb");
+            dropZoneElement.appendChild(thumbnailElement);
+        }
+
+        thumbnailElement.dataset.label = file.name;
+
+        // Show thumbnail for image files
+        if (file.type.startsWith("image/")) {
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                thumbnailElement.style.backgroundImage = `url('${reader.result}')`;
+            };
+        } else {
+            thumbnailElement.style.backgroundImage = null;
+        }
+    }
+</script>
+<style>
+    .client-div {
+        width: 100%;
+    }
+
+    .drop-zone {
+        height: 200px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: "Quicksand", sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        cursor: pointer;
+        color: #cccccc;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .drop-zone--over {
+        border-style: solid;
+    }
+
+    .drop-zone__input {
+        display: none;
+    }
+
+    .drop-zone__thumb {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #cccccc;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: relative;
+    }
+
+    .drop-zone__thumb::after {
+        content: attr(data-label);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 5px 0;
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.75);
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .show-detail:hover {
+        background-color: var(--pearlWhite);
+    }
+</style>

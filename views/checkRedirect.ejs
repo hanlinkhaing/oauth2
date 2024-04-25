@@ -1,0 +1,25 @@
+<div>
+    <div class="d-flex justify-content-center align-items-center flex-column" style="height: 100vh">
+        <h3>
+            <strong>
+                You will be redirected soon!
+            </strong>
+        </h3>
+        <form action="<%- process.env.URL_PRE_FIX %>/authorize" method="post" hidden>
+            <input type="text" name="email" id="email" value="<%- email %>">
+
+            <input type="text" name="client_id" id="client_id" value="<%- client.client_id %>">
+            <input type="text" name="scope" id="sope" value="<%- client.sope %>">
+            <input type="text" name="redirect_uri" id="redirect_uri" value="<%- client.redirect_uri %>">
+            <input type="text" name="response_type" id="response_type" value="<%- client.response_type %>">
+
+            <button type="submit" id="check-redirect-btn"></button>
+        </form>
+    </div>
+</div>
+<script>
+    document.getElementById('check-redirect-btn').click();
+</script>
+<style>
+
+</style>

@@ -1,0 +1,58 @@
+<div class="email-verify rounded">
+    <div class="text-center">
+        <div><img src="/assets/img/logo.png" class="logo mt-2 mb-2 pb-3" /></div>
+        <div class="wrap">
+                <div>
+                    <h3 class="py-3 t">Thank you for registering!</h3>
+                </div>
+<p>Please check your inbox to verify your email address.<br/>
+If you have not received the verification email, please check your spam or junk folder.
+<div><img src="/assets/img/emailIcon.png" class="emailIcon mt-2 mb-2 pb-3" /></div>
+<h6>Didn't receive an email?<span class="text-primary px-1" id="resendEmail">Resend</span></h6>
+<button type="button" class="btn primaryBtn mt-3 mb-3" id="toLogin">Go to Login Page</button>
+        </div>
+       
+    </div>
+</div>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    const encoded = urlParams.get('client_oauth_request');
+    document.getElementById("resendEmail").addEventListener('click',async()=>{
+            try {
+                      const response = await axios.get(`<%- process.env.URL_PRE_FIX %>/auth/get-verify-email?email=${email}${encoded ? `&client_oauth_request=${encoded}` : ''}`);
+                      showError(response.data.message);
+                      resendEmail.hidden = true;
+                } catch (err) {
+                showError(err.message);
+            }
+    })
+    const toLogin = document.getElementById('toLogin');
+    toLogin.onclick = () => location.href = `<%- process.env.URL_PRE_FIX %>/auth/login`;
+</script>
+<style>
+    .email-verify {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .wrap{
+        background-color: #f6f8fa;
+        padding: 30px;
+        border-radius: 12px;
+        border: 1px solid #e3e3e3;
+    }
+    .wrap h3{
+        color: #163f58;
+    }
+    .emailIcon{
+        height: auto;
+        width: 53px;
+    }
+    .wrap span {
+        cursor: pointer;
+    }
+
+</style>

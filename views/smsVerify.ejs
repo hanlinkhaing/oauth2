@@ -1,0 +1,60 @@
+<div class="card text-center">
+    <div class="Content-form-container m-3 flex-column">
+        <div class="Content-form">
+            <div class="Content-form-items">
+                <h6 class="text-center">Verify phone number with SMS</h6>
+                <form action="sms-verify" method="post" class="pt-3">
+                    <div class="d-flex justify-content-center" style="width: 100%;">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text justify-content-center" style="width: 15%;">+</span>
+                            <div class="form-floating" style="width: 30%;">
+                                <input type="text" name="countryCode" id="countryCode" class="form-control shadow-none"
+                                    style="border-radius: 0;"
+                                    value="<%- user.countryCode.replace('+', '').trim() %>"></input>
+                                <label class="form-label" for="countryCode">Code</label>
+                            </div>
+                            <div class="form-floating" style="width: 55%;">
+                                <input type="text" name="phone" id="phone" class="form-control shadow-none"
+                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                                    value="<%- user.phone.replace(user.countryCode, '').trim() %>"></input>
+                                <label class="form-label" for="phone">Phone</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center" style="width: 100%;">
+                        <button type="button" class="btn primaryBtn mt-2" data-bs-dismiss="modal" id="verify-sms-btn"
+                            style="width: 60%;">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const user = JSON.parse('<%- JSON.stringify(user) %>');
+    document.getElementById('countryCode').disabled = user.isSmsVerified;
+    document.getElementById('phone').disabled = user.isSmsVerified;
+    document.getElementById('verify-sms-btn').disabled = user.isSmsVerified;
+    document.getElementById('verify-sms-btn').onclick = async () => {
+        const countryCode = document.getElementById('countryCode').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        try {
+            const result = await axios.post(`<%- process.env.URL_PRE_FIX %>/auth/verify-sms?email=${user.email}`, {
+                countryCode, phone
+            }, { headers: { 'Content-Type': 'application/json' } });
+            callCodeValidator(async (code) => {
+                try {
+                    const response = await axios.get(`<%- process.env.URL_PRE_FIX %>/auth/verify-sms/${code}?email=${user.email}`);
+                    location.href = response.data.url
+                } catch (err) {
+                    showError(err.response.data.message);
+                }
+            })
+        } catch (err) {
+            showError(err.response.data.message);
+        }
+    };
+</script>
+<style>
+
+</style>

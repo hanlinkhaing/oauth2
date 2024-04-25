@@ -1,0 +1,94 @@
+<div class="card text-center">
+    <div class="Content-form-container m-3 flex-column">
+        <form class="Content-form" method="post" id="registerForm" action="register" enctype="multipart/form-data">
+            <div class="Content-form-items">
+                <div class="drop-zone mt-3 text-center">
+                    <img src="<%- process.env.IMG_URL_PRE_FIX + user.profileImageUrl %>" class="logo" />
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="full name" name="username" id="username"
+                        class="form-control shadow-none" disabled value="<%- user.username %>"></input>
+                    <label class="form-label">
+                        Name
+                    </label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="email" placeholder="example@gmail.com" name="email" id="email"
+                        class="form-control shadow-none" disabled value="<%- user.email %>"></input>
+                    <label class="form-label" for="email">Email</label>
+                    <div class="verified-mark"><i class="fas fa-check-circle" data-bs-toggle="tooltip"
+                            id="email-verified"
+                            title="<%- user.isEmailVerified? 'Verified!': 'Need to Verified!' %>"></i></div>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="123456789" name="phone" id="phone" class="form-control shadow-none"
+                        disabled value="<%- user.phone %>"></input>
+                    <label class="form-label" for="phone" style="z-index: 99;">Phone Number</label>
+                    <div class="verified-mark"><i class="fas fa-check-circle" data-bs-toggle="tooltip" id="sms-verified"
+                            title="<%- user.isSmsVerified? 'Verified!': 'Not Verified!' %>"></i></div>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="example@gmail.com" name="country" id="country"
+                        class="form-control shadow-none" disabled value="<%- user.country %>"></input>
+                    <label class="form-label" for="country">Country</label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" placeholder="example@gmail.com" name="city" id="city"
+                        class="form-control shadow-none" disabled value="<%- user.city %>"></input>
+                    <label class="form-label" for="city">City</label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="date" name="dob" id="dob" class="form-control shadow-none" disabled
+                        value="<%- user.dob? new Date(user.dob).toISOString().split('T')[0]: null %>"></input>
+                    <label class="form-label" disabled for="dob">Birth Date</label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" name="address1" id="address1" class="form-control shadow-none" disabled
+                        value="<%- user.address1 %>"></input>
+                    <label class="form-label" for="address1">Address 1</label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" name="address2" id="address2" class="form-control shadow-none" disabled
+                        value="<%- user.address2 %>"></input>
+                    <label class="form-label" for="address2">Address 2</label>
+                </div>
+                <div class="form-floating mt-3">
+                    <input type="text" name="postalCode" id="postalCode" class="form-control shadow-none" disabled
+                        value="<%- user.postalCode %>"></input>
+                    <label class="form-label" for="postalCode">Postal Code</label>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    const emailVerified = document.getElementById('email-verified');
+    const smsVerified = document.getElementById('sms-verified');
+    const user = JSON.parse('<%- JSON.stringify(user) %>');
+    if (!user.phone) smsVerified.style.display = 'none';
+    else if (user.isSmsVerified === true) smsVerified.style.color = '#258360';
+    // else smsVerified.addEventListener('click', () => location.href = `<%- process.env.URL_PRE_FIX %>/auth/verify-sms`);
+    if (user.isEmailVerified === true) emailVerified.style.color = '#258360';
+</script>
+<style>
+    #li-profile {
+        color: rgb(7, 7, 7);
+        background-color: var(--pearlWhite);
+        border-radius: 5px;
+    }
+
+    .li-profile {
+        color: var(--pink);
+    }
+
+    .verified-mark {
+        position: absolute;
+        right: 3%;
+        top: 30%;
+    }
+</style>

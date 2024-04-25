@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  username        String
+  email           String    @unique
+  phone           String?
+  password        String?
+  dob             DateTime?
+  countryCode     String?
+  country         String?
+  city            String?
+  isoCode2        String?
+  address1        String?
+  address2        String?
+  postalCode      String?
+  authType        String?
+  status          String?
+  forgotCode      String?
+  forgotCodeExpAt String?
+  profileImageUrl String?
+  registerType    String    @default("DEFAULT")
+  isEmailVerified Boolean?  @default(false)
+  isSmsVerified   Boolean?  @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  client            OAuthClient[]
+  authCodes         AuthCode[]
+  profileImage      ProfileImage?
+  clients           UsersUseClients[]
+  oAuthCodes        OAuthCode[]
+  oAuthAccessTokens OAuthAccessToken[]
+  UserData          UserData[]
+
+  @@map(name: "goya_users")
+}
+
+model UserData {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User User @relation(fields: [userId], references: [id])
+
+  @@map(name: "goya_user_data")
+}
+
+model ProfileImage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  ext       String?
+  mime      String
+  size      Decimal  @db.Decimal(10, 2)
+  userId    Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("goya_profile_images")
+}
+
+model AuthCode {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  code      String
+  type      String
+  expDate   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("goya_auth_codes")
+}
+
+model UsersUseClients {
+  userId   Int
+  clientId Int
+
+  user   User        @relation(fields: [userId], references: [id])
+  client OAuthClient @relation(fields: [clientId], references: [id])
+
+  @@id([userId, clientId])
+  @@map("goya_users_use_clients")
+}
+
+model OAuthClient {
+  id           Int      @id @default(autoincrement())
+  appLogoUrl   String?
+  appName      String
+  appType      String // lowercase
+  clientId     String?  @unique
+  clientSecret String?  @unique
+  publicKey    String?
+  privateKey   String?
+  redirectUris String? // string ,
+  grants       String? // string ,
+  scopes       String? // open_id{username, email, wallet},open_id/contacts{all}
+  userId       Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user   User?              @relation(fields: [userId], references: [id])
+  users  UsersUseClients[]
+  codes  OAuthCode[]
+  tokens OAuthAccessToken[]
+  logo   LogoImage?
+
+  @@map("goya_oauth_clients")
+}
+
+model LogoImage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  ext       String?
+  mime      String
+  size      Decimal  @db.Decimal(10, 2)
+  clientId  Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client OAuthClient @relation(fields: [clientId], references: [id])
+
+  @@map("goya_logo_images")
+}
+
+model OAuthCode {
+  id                Int       @id @default(autoincrement())
+  authorizationCode String
+  expiresAt         DateTime?
+  redirectUri       String?
+  scope             String?
+  userId            Int
+  clientId          Int
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user   User        @relation(fields: [userId], references: [id])
+  client OAuthClient @relation(fields: [clientId], references: [id])
+
+  @@map("goya_oauth_codes")
+}
+
+model OAuthAccessToken {
+  id                    Int      @id @default(autoincrement())
+  accessToken           String
+  accessTokenExpiresAt  DateTime
+  refreshToken          String
+  refreshTokenExpiresAt DateTime
+  scope                 String?
+  userId                Int
+  clientId              Int
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user   User        @relation(fields: [userId], references: [id])
+  client OAuthClient @relation(fields: [clientId], references: [id])
+
+  @@map("goya_oauth_access_tokens")
+}
