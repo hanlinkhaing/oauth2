@@ -16,11 +16,6 @@ const { City } = require('country-state-city');
 const prisma = new PrismaClient();
 
 const registerGet = async (req, res, next) => {
-    // if (!req.query.hasCOR) {
-    //     return res.redirect(
-    //         `https://oauth.goyauniverse.co/oauth/v2/auth/login?client_oauth_request=eyJjbGllbnRfaWQiOiI1MDM3YWNiNS04NmI3LTU4NDgtODQzZS1iOGM2YTUyZmI1NTkiLCJzY29wZSI6Im9wZW5faWQvY29udGFjdHMiLCJyZXNwb25zZV90eXBlIjoiY29kZSIsInJlZGlyZWN0X3VyaSI6Imh0dHBzOi8vZWR1LmdveWF1bml2ZXJzZS5jby9hcGkvdjEvYXV0aC9vYXV0aC1jYWxsYmFjayJ9`
-    //     );
-    // }
     return res.render('register', {
         user: {
             username: null,

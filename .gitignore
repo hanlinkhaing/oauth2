@@ -6,3 +6,5 @@ prisma/migrations/*
 logs/*
 
 public/uploads/*
+
+data/*

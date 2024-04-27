@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+    local:
+        name: local
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.10.0.0/16
+                  gateway: 172.10.0.1
+
+services:
+    postgresql:
+        platform: linux/amd64
+        image: postgres:${POSTGRES_VERSION}
+        container_name: smiles-oauth-postgres-${POSTGRES_VERSION}
+        environment:
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        ports:
+            - ${POSTGRES_PORT}:5432
+        volumes:
+            - ${POSTGRES_DATA}:/var/lib/postgresql/data
+        networks:
+            - local
+
+    # oauth:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     container_name: smiles-oauth-node
+    #     ports:
+    #         - ${PORT}:5000
+    #     env_file:
+    #         - .env
+    #     volumes:
+    #         - ./src:/home/app/oauth/src
+    #         - ./views:/home/app/oauth/views
+    #         - ./public/build:/home/app/oauth/public/build
+    #         - ./app.js:/home/app/oauth/app.js
+    #     networks:
+    #         - local

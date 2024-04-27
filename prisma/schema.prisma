@@ -40,7 +40,7 @@ model User {
   oAuthAccessTokens OAuthAccessToken[]
   UserData          UserData[]
 
-  @@map(name: "goya_users")
+  @@map(name: "users")
 }
 
 model UserData {
@@ -53,7 +53,7 @@ model UserData {
 
   User User @relation(fields: [userId], references: [id])
 
-  @@map(name: "goya_user_data")
+  @@map(name: "user_data")
 }
 
 model ProfileImage {
@@ -68,7 +68,7 @@ model ProfileImage {
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("goya_profile_images")
+  @@map("profile_images")
 }
 
 model AuthCode {
@@ -82,7 +82,7 @@ model AuthCode {
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("goya_auth_codes")
+  @@map("auth_codes")
 }
 
 model UsersUseClients {
@@ -93,20 +93,20 @@ model UsersUseClients {
   client OAuthClient @relation(fields: [clientId], references: [id])
 
   @@id([userId, clientId])
-  @@map("goya_users_use_clients")
+  @@map("users_use_clients")
 }
 
 model OAuthClient {
   id           Int      @id @default(autoincrement())
   appLogoUrl   String?
   appName      String
-  appType      String // lowercase
+  appType      String
   clientId     String?  @unique
   clientSecret String?  @unique
   publicKey    String?
   privateKey   String?
-  redirectUris String? // string ,
-  grants       String? // string ,
+  redirectUris String?
+  grants       String?
   scopes       String? // open_id{username, email, wallet},open_id/contacts{all}
   userId       Int?
   createdAt    DateTime @default(now())
@@ -118,7 +118,7 @@ model OAuthClient {
   tokens OAuthAccessToken[]
   logo   LogoImage?
 
-  @@map("goya_oauth_clients")
+  @@map("oauth_clients")
 }
 
 model LogoImage {
@@ -133,7 +133,7 @@ model LogoImage {
 
   client OAuthClient @relation(fields: [clientId], references: [id])
 
-  @@map("goya_logo_images")
+  @@map("logo_images")
 }
 
 model OAuthCode {
@@ -150,7 +150,7 @@ model OAuthCode {
   user   User        @relation(fields: [userId], references: [id])
   client OAuthClient @relation(fields: [clientId], references: [id])
 
-  @@map("goya_oauth_codes")
+  @@map("oauth_codes")
 }
 
 model OAuthAccessToken {
@@ -168,5 +168,5 @@ model OAuthAccessToken {
   user   User        @relation(fields: [userId], references: [id])
   client OAuthClient @relation(fields: [clientId], references: [id])
 
-  @@map("goya_oauth_access_tokens")
+  @@map("oauth_access_tokens")
 }

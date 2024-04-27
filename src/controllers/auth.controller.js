@@ -172,23 +172,23 @@ const sendVerifyEmail = async (req, res, next) => {
                 userId: user.id,
             },
         });
-        await mailer.sendMail({
-            from: process.env.MAIL_FROM,
-            to: user.email,
-            subject: 'Goya - Email Verification',
-            html: `<p>
-        Please click this 
-        <a 
-        href="${process.env.SERVER_DOMAIN}${process.env.URL_PRE_FIX}/auth/verify-email/${authCode.code}?email=${
-                user.email
-            }${
-                req.query[RedirectRequestFields.Client_Oauth_Request]
-                    ? `&${RedirectRequestFields.Client_Oauth_Request}=${
-                          req.query[RedirectRequestFields.Client_Oauth_Request]
-                      }`
-                    : ''
-            }">link</a> to verify your account.</p>`,
-        });
+        // await mailer.sendMail({
+        //     from: process.env.MAIL_FROM,
+        //     to: user.email,
+        //     subject: 'Smiles - Email Verification',
+        //     html: `<p>
+        // Please click this
+        // <a
+        // href="${process.env.SERVER_DOMAIN}${process.env.URL_PRE_FIX}/auth/verify-email/${authCode.code}?email=${
+        //         user.email
+        //     }${
+        //         req.query[RedirectRequestFields.Client_Oauth_Request]
+        //             ? `&${RedirectRequestFields.Client_Oauth_Request}=${
+        //                   req.query[RedirectRequestFields.Client_Oauth_Request]
+        //               }`
+        //             : ''
+        //     }">link</a> to verify your account.</p>`,
+        // });
         return res.render('emailVerify', { error: { message: null }, layout: 'layouts/secondary' });
     } catch (err) {
         _logger.error('Method:sendVerifyEmail, Error:', err);
@@ -218,23 +218,23 @@ const getVerifyEmail = async (req, res, next) => {
                 userId: user.id,
             },
         });
-        await mailer.sendMail({
-            from: process.env.MAIL_FROM,
-            to: user.email,
-            subject: 'Goya - Email Verification',
-            html: `<p>
-        Please click this 
-        <a 
-        href="${process.env.SERVER_DOMAIN}${process.env.URL_PRE_FIX}/auth/verify-email/${authCode.code}?email=${
-                user.email
-            }${
-                req.query[RedirectRequestFields.Client_Oauth_Request]
-                    ? `&${RedirectRequestFields.Client_Oauth_Request}=${
-                          req.query[RedirectRequestFields.Client_Oauth_Request]
-                      }`
-                    : ''
-            }">link</a> to verify your account.</p>`,
-        });
+        // await mailer.sendMail({
+        //     from: process.env.MAIL_FROM,
+        //     to: user.email,
+        //     subject: 'Smiles - Email Verification',
+        //     html: `<p>
+        // Please click this
+        // <a
+        // href="${process.env.SERVER_DOMAIN}${process.env.URL_PRE_FIX}/auth/verify-email/${authCode.code}?email=${
+        //         user.email
+        //     }${
+        //         req.query[RedirectRequestFields.Client_Oauth_Request]
+        //             ? `&${RedirectRequestFields.Client_Oauth_Request}=${
+        //                   req.query[RedirectRequestFields.Client_Oauth_Request]
+        //               }`
+        //             : ''
+        //     }">link</a> to verify your account.</p>`,
+        // });
         return res.status(200).json({ message: 'Successfully send!' });
     } catch (err) {
         _logger.error('Method:getVerifyEmail, Error:', err);
@@ -442,22 +442,22 @@ const sendReqForPass = async (req, res, next) => {
         const forgotCodeExpAt = new Date().setMinutes(new Date().getMinutes() + 15).toPrecision();
         await prisma.user.update({ where: { id: user.id }, data: { password: null, forgotCode, forgotCodeExpAt } });
 
-        await mailer.sendMail({
-            from: process.env.MAIL_FROM,
-            to: user.email,
-            subject: 'Goya - Reset Password',
-            html: `<p>
-        Please click this 
-        <a 
-        href="${process.env.SERVER_DOMAIN}${process.env.URL_PRE_FIX}/auth/request-forgot-pass/${forgotCode}${
-                req.query[RedirectRequestFields.Client_Oauth_Request]
-                    ? `?${RedirectRequestFields.Client_Oauth_Request}=${
-                          req.query[RedirectRequestFields.Client_Oauth_Request]
-                      }`
-                    : ''
-            }">link
-        </a> to reset your password.</p>`,
-        });
+        // await mailer.sendMail({
+        //     from: process.env.MAIL_FROM,
+        //     to: user.email,
+        //     subject: 'Smiles - Reset Password',
+        //     html: `<p>
+        // Please click this
+        // <a
+        // href="${process.env.SERVER_DOMAIN}${process.env.URL_PRE_FIX}/auth/request-forgot-pass/${forgotCode}${
+        //         req.query[RedirectRequestFields.Client_Oauth_Request]
+        //             ? `?${RedirectRequestFields.Client_Oauth_Request}=${
+        //                   req.query[RedirectRequestFields.Client_Oauth_Request]
+        //               }`
+        //             : ''
+        //     }">link
+        // </a> to reset your password.</p>`,
+        // });
         return res.render('successForgotPass', { error: { message: null }, layout: 'layouts/secondary' });
     } catch (err) {
         _logger.error('Method:sendReqForPass, Error:', err);

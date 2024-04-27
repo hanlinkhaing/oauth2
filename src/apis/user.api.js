@@ -20,7 +20,7 @@ router.post(
                     const existed = await prisma.user.findFirst({
                         where: { email: { equals: value, mode: 'insensitive' } },
                     });
-
+                    console.log('existed: ', existed);
                     if (existed) throw new Error('Email already exist!');
                     else return value;
                 } catch (err) {

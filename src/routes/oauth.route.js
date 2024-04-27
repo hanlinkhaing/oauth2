@@ -14,7 +14,7 @@ const { PrismaClient, Prisma } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 const oauth = new OAuth2Server({
-    model: require('../model'),
+    model: require('../../model'),
     accessTokenLifetime: 2 * 60 * 60,
     useErrorHandler: true,
     allowEmptyState: true,

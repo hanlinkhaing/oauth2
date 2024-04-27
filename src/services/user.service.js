@@ -36,6 +36,7 @@ const register = async (req, res, next) => {
 
     try {
         let user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+
         if (user) return res.status(400).json({ timestamp: getTimeStampInSecond(), message: 'Email already exist!' });
 
         const hashed = await bcrypt.hash(password, 10);

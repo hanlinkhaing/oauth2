@@ -1,11 +1,11 @@
 require('dotenv').config();
-require('./passport');
+require('./src/passport');
 const express = require('express');
 const app = express();
 const path = require('path');
-const logger = require('./logger');
+const logger = require('./src/logger');
 const morgan = require('morgan');
-require('./utils/global.response');
+require('./src/utils/global.response');
 
 app.use(require('cors')());
 app.use(express.json());
@@ -17,7 +17,7 @@ app.use(
     })
 );
 
-app.use(express.static('public/build'));
+app.use(express.static('public'));
 app.use(require('express-ejs-layouts'));
 app.set('layout', './layouts/default');
 app.set('view engine', 'ejs');
@@ -35,11 +35,11 @@ app.use((err, req, res, next) => {
 
 app.get('/', (req, res) => res.redirect(`${process.env.URL_PRE_FIX}/auth/login`));
 
-app.use(`${process.env.URL_PRE_FIX}/auth`, require('./routes/auth.route'));
-app.use(`${process.env.URL_PRE_FIX}/clients`, require('./routes/client.route'));
-app.use(`${process.env.URL_PRE_FIX}`, require('./routes/oauth.route'));
-app.use(`${process.env.URL_PRE_FIX}/users`, require('./routes/user.route'));
-app.use(`${process.env.URL_PRE_FIX}/user-apis`, require('./apis/user.api'));
+app.use(`${process.env.URL_PRE_FIX}/auth`, require('./src/routes/auth.route'));
+app.use(`${process.env.URL_PRE_FIX}/clients`, require('./src/routes/client.route'));
+app.use(`${process.env.URL_PRE_FIX}`, require('./src/routes/oauth.route'));
+app.use(`${process.env.URL_PRE_FIX}/users`, require('./src/routes/user.route'));
+app.use(`${process.env.URL_PRE_FIX}/user-apis`, require('./src/apis/user.api'));
 
 app.use((req, res) => {
     return res.status(404).render('error', {

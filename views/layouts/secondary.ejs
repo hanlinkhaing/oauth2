@@ -16,21 +16,15 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.2/css/all.css"
         integrity="sha384-fZCoUih8XsaUZnNDOiLqnby1tMJ0sE7oBbNk2Xxf5x8Z4SvNQ9j83vFMa/erbVrV" crossorigin="anonymous" />
-    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
-    <title>Goya Account</title>
-    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="icon" type="image/x-icon" href="/build/assets/img/favicon.ico">
+    <title>Smiles OAuth</title>
+    <link rel="stylesheet" href="/build/assets/css/global.css">
 </head>
 
 <body>
     <section class="body-section">
         <%- body %>
     </section>
-    <!-- <section class="footer-section">
-        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
-            © 2022 Copyright:
-            <a class="text-reset fw-bold" href="https://mdbootstrap.com/">Web3re.Co</a>
-        </div>
-    </section> -->
     <section class="toast-section">
         <div class="position-fixed top-0 p-1" id="toast" hidden style="z-index: 1001;">
             <div class="error-message">
@@ -83,9 +77,9 @@
         </div>
     </section>
 </body>
-<script src="/assets/js/common.js"></script>
-<script src="/assets/js/password.js"></script>
-<script src="/assets/js/code.js"></script>
+<script src="/build/assets/js/common.js"></script>
+<script src="/build/assets/js/password.js"></script>
+<script src="/build/assets/js/code.js"></script>
 <script>
     const error = JSON.parse(`<%- JSON.stringify(error) %>`);
     if (error.message) {

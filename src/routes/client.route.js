@@ -20,10 +20,10 @@ const upload = multer({
         filename: function (req, file, cb) {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
             const ext = file.originalname.split('.')[file.originalname.split('.').length - 1];
-            cb(null, 'goya-accounts-' + file.fieldname + '-' + uniqueSuffix + '.' + ext);
+            cb(null, 'smiles-accounts-' + file.fieldname + '-' + uniqueSuffix + '.' + ext);
         },
     }),
-    limits: { fileSize: 1048576 },
+    limits: { fileSize: (+process.env.FILE_SIZE_IN_MB || 5) * 1024 * 1024 },
 });
 
 router.post(
